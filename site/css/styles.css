@@ -1,0 +1,13 @@
+#documentList li {
+    cursor: pointer;
+    list-style-type: none;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+#documentList li:hover {
+    background-color: #f0f0f0;
+}
+#previewContainer {
+    border: 1px solid #ccc;
+    padding: 10px;
+}
