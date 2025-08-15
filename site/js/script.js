@@ -1,5 +1,5 @@
-const repoOwner = 'maplelander'; // e.g., 'ZNA-GOV-ZN'
-const repoName = 'zna.gov.zni.github.io'; // e.g., 'ZNA-GOV-ZN.github.io'
+const repoOwner = 'maplelander'; // Your GitHub username
+const repoName = 'zna.gov.zni.github.io'; // Your repo name
 const basePath = 'documents'; // Folder to index
 const apiBase = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
 
@@ -17,17 +17,15 @@ async function fetchDirectory(path = basePath) {
     let files = [];
     for (const item of data) {
         if (item.type === 'file') {
-            // Assume files are PDFs; adjust if needed
             const category = path.replace(basePath + '/', '').split('/')[0] || 'Uncategorized';
             categories.add(category);
             files.push({
                 name: item.name,
                 path: item.path,
-                url: item.download_url, // Raw file URL for download/preview
+                url: item.download_url,
                 category: category
             });
         } else if (item.type === 'dir') {
-            // Recurse into subfolders
             files = files.concat(await fetchDirectory(item.path));
         }
     }
@@ -70,13 +68,21 @@ function filterDocuments() {
 
 function showPreview(doc) {
     const previewContainer = document.getElementById('previewContainer');
-    const previewEmbed = document.getElementById('previewEmbed');
+    const previewFrame = document.getElementById('previewFrame');
     const downloadLink = document.getElementById('downloadLink');
     
-    previewEmbed.src = doc.url; // Embed PDF
+    // Use Google Docs Viewer to embed supported formats (PDF, ODT, PNG, JPEG) without download
+    const ext = doc.name.split('.').pop().toLowerCase();
+    if (['pdf', 'odt', 'png', 'jpeg', 'jpg'].includes(ext)) {
+        previewFrame.src = `https://docs.google.com/gview?url=${encodeURIComponent(doc.url)}&embedded=true`;
+    } else {
+        previewFrame.src = ''; // Hide preview for unsupported types
+        console.warn(`Unsupported preview format: ${ext}`);
+    }
+    
     downloadLink.href = doc.url;
-    downloadLink.textContent = `Download ${doc.name}`;
     downloadLink.download = doc.name;
+    downloadLink.textContent = `Download ${doc.name}`;
     
     previewContainer.style.display = 'block';
 }
